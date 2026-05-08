@@ -1,27 +1,32 @@
 import React from 'react';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell,
+  LineChart, Line
 } from 'recharts';
 import { AlertTriangle, CheckCircle, FileSpreadsheet, Activity, Building, LayoutList } from 'lucide-react';
 import { MetricCard } from './SharedUI';
 
-export function CollegeCompareView({ metrics, collegeSummaries }) {
+export function CollegeCompareView({ metrics, collegeSummaries, globalTrendData = [] }) {
   // Sort colleges for visuals
   const byCourses = [...collegeSummaries].sort((a, b) => b.courseCount - a.courseCount);
   const byScore = [...collegeSummaries].sort((a, b) => b.avgCurrScore - a.avgCurrScore);
   const byErrors = [...collegeSummaries].sort((a, b) => b.currErrors - a.currErrors);
   const byEfficiency = [...collegeSummaries].sort((a, b) => b.efficiency - a.efficiency);
 
+  const colors = ['var(--primary)', 'var(--success)', 'var(--warning)', 'var(--danger)', '#ec4899', '#8b5cf6', '#06b6d4'];
+
   return (
     <div className="animate-fade-in">
       {/* Top Level KPIs */}
       <div className="grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)', marginBottom: 40 }}>
-        <MetricCard title="Total Colleges" value={metrics.totalColleges} previousValue={metrics.totalColleges} icon={Building} />
-        <MetricCard title="Courses Analyzed" value={metrics.matchedCount} previousValue={metrics.matchedCount} icon={LayoutList} />
-        <MetricCard title="Average Score" value={metrics.avgCurrScore} previousValue={metrics.avgBaseScore} icon={CheckCircle} />
-        <MetricCard title="Total Errors" value={metrics.totalCurrErrors} previousValue={metrics.totalBaseErrors} inverseGood icon={AlertTriangle} />
-        <MetricCard title="Efficiency" value={metrics.currEfficiency} previousValue={metrics.baseEfficiency} icon={Activity} />
+        <MetricCard title="Total Colleges" value={metrics.totalColleges} previousValue={metrics.totalColleges} icon={Building} hideDelta={true} />
+        <MetricCard title="Courses Analyzed" value={metrics.matchedCount} previousValue={metrics.matchedCount} icon={LayoutList} hideDelta={true} />
+        <MetricCard title="Average Score" value={metrics.avgCurrScore} previousValue={metrics.avgBaseScore} icon={CheckCircle} deltaLabel="vs previous" />
+        <MetricCard title="Total Errors" value={metrics.totalCurrErrors} previousValue={metrics.totalBaseErrors} inverseGood icon={AlertTriangle} deltaLabel="vs previous" />
+        <MetricCard title="Efficiency" value={metrics.currEfficiency} previousValue={metrics.baseEfficiency} icon={Activity} deltaLabel="vs previous" />
       </div>
+
+
 
       <div className="grid grid-cols-2" style={{ marginBottom: 40 }}>
         <div className="glass-panel">

@@ -1,16 +1,52 @@
-# React + Vite
+# Course Accessibility Reports Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An intelligent analytics engine for tracking and visualizing course accessibility progress across multiple colleges.
 
-Currently, two official plugins are available:
+## 🚀 Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Follow these steps to run the project locally on your machine.
 
-## React Compiler
+### Prerequisites
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- [Node.js](https://nodejs.org/) (v18.0.0 or higher recommended)
+- npm (usually comes with Node.js)
 
-## Expanding the ESLint configuration
+### Installation
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. **Clone the repository** (if not already done) or navigate to the project directory.
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+### Running the Project
+
+To start the development server with Hot Module Replacement (HMR):
+
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:5173` (or the port shown in your terminal).
+
+## 🛠 Tech Stack
+
+- **Frontend**: [React 19](https://react.dev/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Charts**: [Recharts](https://recharts.org/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Data Processing**: [SheetJS (XLSX)](https://sheetjs.com/) & [PapaParse](https://www.papaparse.com/)
+
+## 📈 Features
+
+- **Global Comparison**: High-level metrics across all colleges.
+- **College Drill-down**: Detailed view of course performance within a specific college.
+- **Course Deep Dive**: Historical progress and specific accessibility metrics for individual courses.
+- **Dynamic Data Loading**: Connects directly to public Google Sheets workbooks.
+
+## 🚧 Upcoming: Admin Page & Supabase
+
+We are currently integrating **Supabase** to add:
+- **Admin Authentication**: Secure login for authorized users.
+- **Persistent Storage**: Save report links and configuration in a PostgreSQL database.
+- **Historical Trends**: Automated tracking of progress over multiple reporting periods.

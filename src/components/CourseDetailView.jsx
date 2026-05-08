@@ -1,16 +1,18 @@
 import React from 'react';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line
 } from 'recharts';
 import { AlertTriangle, CheckCircle, FileSpreadsheet, Activity, LayoutList, Search, Info } from 'lucide-react';
-import { MetricCard } from './SharedUI';
+import { MetricCard, CircularKPICard } from './SharedUI';
 
 export function CourseDetailView({ activeCourse }) {
   if (!activeCourse) return null;
 
-  const scoreData = [
-    { name: 'Accessibility Score', Baseline: activeCourse.baseScore, Current: activeCourse.currScore }
-  ];
+  const historyData = activeCourse.history.map(tick => ({
+     label: tick.periodLabel,
+     score: tick.score,
+     errors: tick.errors
+  }));
 
   const issueData = [
     { name: 'Issues', Errors: activeCourse.currErrors, Suggestions: activeCourse.currSuggestions }
@@ -23,11 +25,11 @@ export function CourseDetailView({ activeCourse }) {
 
   let interpretationText = [];
   if (activeCourse.scoreDelta > 0) {
-    interpretationText.push(`This course improved its accessibility score by ${activeCourse.scoreDelta.toFixed(1)} points from the baseline.`);
+    interpretationText.push(`This course improved its accessibility score by ${activeCourse.scoreDelta.toFixed(1)} points vs the previous reporting period.`);
   } else if (activeCourse.scoreDelta < 0) {
     interpretationText.push(`This course's accessibility score declined by ${Math.abs(activeCourse.scoreDelta).toFixed(1)} points.`);
   } else {
-    interpretationText.push(`This course's accessibility score remained unchanged.`);
+    interpretationText.push(`This course's accessibility score remained strictly unchanged.`);
   }
 
   if (activeCourse.currDensity > 1) {
@@ -50,11 +52,24 @@ export function CourseDetailView({ activeCourse }) {
         </span>
       </div>
 
-      <div className="grid grid-cols-4" style={{ marginBottom: 40 }}>
-        <MetricCard title="Current Score" value={activeCourse.currScore} previousValue={activeCourse.baseScore} icon={CheckCircle} />
-        <MetricCard title="Total Errors" value={activeCourse.currErrors} previousValue={activeCourse.baseErrors} inverseGood icon={AlertTriangle} />
-        <MetricCard title="Suggestions" value={activeCourse.currSuggestions} previousValue={activeCourse.baseSuggestions} inverseGood icon={FileSpreadsheet} />
-        <MetricCard title="Error Density" value={activeCourse.currDensity} previousValue={activeCourse.baseDensity} inverseGood icon={Activity} />
+      <div className="grid" style={{ gridTemplateColumns: 'minmax(250px, 1fr) 2fr', gap: 40, marginBottom: 40 }}>
+        {/* Giant Circular KPI */}
+        <div style={{ height: 320 }}>
+           <CircularKPICard 
+             score={activeCourse.currScore}
+             courseName="Latest Accessible Score"
+             subLabel={`Bi-Weekly Delta: ${activeCourse.scoreDelta > 0 ? '+' : ''}${activeCourse.scoreDelta.toFixed(1)}`}
+             trendVisible={false}
+           />
+        </div>
+
+        {/* Detailed Metrics */}
+        <div className="grid grid-cols-2" style={{ gap: 16 }}>
+          <MetricCard title="Total Errors" value={activeCourse.currErrors} previousValue={activeCourse.baseErrors} inverseGood icon={AlertTriangle} />
+          <MetricCard title="Suggestions" value={activeCourse.currSuggestions} previousValue={activeCourse.baseSuggestions} inverseGood icon={FileSpreadsheet} />
+          <MetricCard title="Error Density" value={activeCourse.currDensity} previousValue={activeCourse.baseDensity} inverseGood icon={Activity} />
+          <MetricCard title="Files Fixed" value={activeCourse.currFixed} previousValue={activeCourse.baseFixed} icon={CheckCircle} />
+        </div>
       </div>
 
       {/* Interpretation Alert */}
@@ -66,25 +81,32 @@ export function CourseDetailView({ activeCourse }) {
       </div>
 
       <div className="grid grid-cols-3" style={{ marginBottom: 40 }}>
-        <div className="glass-panel">
-          <h3 style={{ marginBottom: 20 }}>Score Progression</h3>
+        <div className="glass-panel" style={{ gridColumn: 'span 2' }}>
+          <h3 style={{ marginBottom: 20 }}>Detailed Score Progression</h3>
           <div style={{ width: '100%', height: 300 }}>
-            <ResponsiveContainer>
-              <BarChart data={scoreData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                <XAxis dataKey="name" tick={{fill: 'var(--text-muted)'}} />
-                <YAxis domain={[0, 100]} tick={{fill: 'var(--text-muted)'}} />
-                <Tooltip contentStyle={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-color)', borderRadius: 8 }} />
-                <Legend wrapperStyle={{ paddingTop: 20 }} />
-                <Bar dataKey="Baseline" fill="var(--secondary)" opacity={0.6} radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Current" fill="var(--primary)" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {historyData.length > 1 ? (
+              <ResponsiveContainer>
+                <LineChart data={historyData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)' }} />
+                  <YAxis domain={[0, 100]} tick={{ fill: 'var(--text-muted)' }} />
+                  <Tooltip 
+                     contentStyle={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-color)', borderRadius: 8 }}
+                     formatter={(v) => v.toFixed(1) + '%'}
+                  />
+                  <Line type="monotone" dataKey="score" stroke="var(--primary)" strokeWidth={4} dot={{ r: 5 }} activeDot={{ r: 8 }} name="Course Score" />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                Need at least 2 reporting periods to track progress.
+              </div>
+            )}
           </div>
         </div>
 
         <div className="glass-panel">
-          <h3 style={{ marginBottom: 20 }}>Issues vs Suggestions</h3>
+          <h3 style={{ marginBottom: 20 }}>Metrics Profile</h3>
           <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
               <BarChart data={issueData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
@@ -95,23 +117,6 @@ export function CourseDetailView({ activeCourse }) {
                 <Legend wrapperStyle={{ paddingTop: 20 }} />
                 <Bar dataKey="Errors" fill="var(--danger)" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="Suggestions" fill="rgba(255,255,255,0.2)" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="glass-panel">
-          <h3 style={{ marginBottom: 20 }}>Files Reviewed vs Scanned</h3>
-          <div style={{ width: '100%', height: 300 }}>
-             <ResponsiveContainer>
-              <BarChart data={filesData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                <XAxis dataKey="name" tick={{fill: 'var(--text-muted)'}} />
-                <YAxis tick={{fill: 'var(--text-muted)'}} />
-                <Tooltip contentStyle={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-color)', borderRadius: 8 }} />
-                <Legend wrapperStyle={{ paddingTop: 20 }} />
-                <Bar dataKey="Reviewed" fill="var(--warning)" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Scanned" fill="rgba(255,255,255,0.2)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
