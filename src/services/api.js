@@ -23,6 +23,22 @@ export const api = {
     await supabase.auth.signOut();
   },
 
+  updatePassword: async (newPassword) => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  addAdmin: async (email, password) => {
+    // We instantiate a temporary client for signups so that we don't alter the current active admin session!
+    const { createClient } = await import('@supabase/supabase-js');
+    const tempClient = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY);
+    
+    const { error } = await tempClient.auth.signUp({ email, password });
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
   getSession: async () => {
     const { data, error } = await supabase.auth.getSession();
     if (error) throw new Error(error.message);

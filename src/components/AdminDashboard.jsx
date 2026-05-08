@@ -14,6 +14,15 @@ export function AdminDashboard() {
   const [uploadMode, setUploadMode] = useState('file');
   const [isAdding, setIsAdding] = useState(false);
   
+  const [newPassword, setNewPassword] = useState('');
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [passMsg, setPassMsg] = useState('');
+
+  const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [newAdminPassword, setNewAdminPassword] = useState('');
+  const [isAddingAdmin, setIsAddingAdmin] = useState(false);
+  const [adminMsg, setAdminMsg] = useState('');
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -86,6 +95,37 @@ export function AdminDashboard() {
       await fetchSheets();
     } catch (err) {
       setError(err.message || 'Failed to delete sheet');
+    }
+  };
+
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    setIsUpdatingPassword(true);
+    setPassMsg('');
+    try {
+      await api.updatePassword(newPassword);
+      setPassMsg('Password updated successfully!');
+      setNewPassword('');
+    } catch (err) {
+      setPassMsg(`Error: ${err.message}`);
+    } finally {
+      setIsUpdatingPassword(false);
+    }
+  };
+
+  const handleAddAdmin = async (e) => {
+    e.preventDefault();
+    setIsAddingAdmin(true);
+    setAdminMsg('');
+    try {
+      await api.addAdmin(newAdminEmail, newAdminPassword);
+      setAdminMsg('Admin added successfully! (They may need to confirm their email)');
+      setNewAdminEmail('');
+      setNewAdminPassword('');
+    } catch (err) {
+      setAdminMsg(`Error: ${err.message}`);
+    } finally {
+      setIsAddingAdmin(false);
     }
   };
 
@@ -240,6 +280,63 @@ export function AdminDashboard() {
             </table>
           </div>
         )}
+      </div>
+
+      <div className="grid grid-cols-2" style={{ gap: 24, marginTop: 40 }}>
+        <div className="glass-panel">
+          <h3 style={{ marginBottom: 20 }}>Change Your Password</h3>
+          <form onSubmit={handleUpdatePassword} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: 8, color: 'var(--text-muted)' }}>New Password</label>
+              <input 
+                type="password" 
+                className="input-field" 
+                required
+                minLength={6}
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                placeholder="••••••••"
+              />
+            </div>
+            {passMsg && <div style={{ fontSize: '0.85rem', color: passMsg.includes('Error') ? 'var(--danger)' : 'var(--success)' }}>{passMsg}</div>}
+            <button type="submit" className="btn-primary" disabled={isUpdatingPassword}>
+              {isUpdatingPassword ? <div className="loader" style={{ margin: '0 auto' }}></div> : 'Update Password'}
+            </button>
+          </form>
+        </div>
+
+        <div className="glass-panel">
+          <h3 style={{ marginBottom: 20 }}>Add New Admin</h3>
+          <form onSubmit={handleAddAdmin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: 8, color: 'var(--text-muted)' }}>Email Address</label>
+              <input 
+                type="email" 
+                className="input-field" 
+                required
+                value={newAdminEmail}
+                onChange={e => setNewAdminEmail(e.target.value)}
+                placeholder="admin@example.com"
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: 8, color: 'var(--text-muted)' }}>Password</label>
+              <input 
+                type="password" 
+                className="input-field" 
+                required
+                minLength={6}
+                value={newAdminPassword}
+                onChange={e => setNewAdminPassword(e.target.value)}
+                placeholder="••••••••"
+              />
+            </div>
+            {adminMsg && <div style={{ fontSize: '0.85rem', color: adminMsg.includes('Error') ? 'var(--danger)' : 'var(--success)' }}>{adminMsg}</div>}
+            <button type="submit" className="btn-primary" disabled={isAddingAdmin}>
+              {isAddingAdmin ? <div className="loader" style={{ margin: '0 auto' }}></div> : 'Create Admin'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
