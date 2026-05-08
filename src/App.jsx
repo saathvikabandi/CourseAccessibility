@@ -135,9 +135,14 @@ function PublicAnalysisApp() {
 
     // 1. Group by Course
     const courseMap = new Map();
+    const normalize = (str) => String(str).trim().toLowerCase();
+
     allData.timeSeriesData.forEach(row => {
-       if (!courseMap.has(row.fullName)) courseMap.set(row.fullName, []);
-       courseMap.get(row.fullName).push(row);
+       // Group by college and course name to prevent collisions, 
+       // and normalize strings to fix trailing whitespace/case issues across sheets.
+       const key = `${normalize(row.college)}::${normalize(row.fullName)}`;
+       if (!courseMap.has(key)) courseMap.set(key, []);
+       courseMap.get(key).push(row);
     });
 
     const latestCourses = [];
@@ -289,6 +294,11 @@ function PublicAnalysisApp() {
   return (
     <div className="container">
       <header style={{ textAlign: 'center', marginBottom: 40, position: 'relative' }} className="animate-fade-in">
+        <div style={{ position: 'absolute', top: 0, right: 0 }}>
+          <button onClick={() => navigate('/admin')} className="btn-primary" style={{ background: 'transparent', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', fontSize: '0.9rem' }}>
+            <ShieldCheck size={16} /> Admin Login
+          </button>
+        </div>
         <h1 className="text-gradient" style={{ fontSize: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
           <TrendingUp size={48} color="var(--primary)" />
           Accessibility Progress

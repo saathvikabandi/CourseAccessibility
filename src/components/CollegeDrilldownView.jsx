@@ -79,11 +79,11 @@ export function CollegeDrilldownView({ collegeSummary, filteredCourses }) {
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 16 }}>
             Highlights the net change in accessibility score from the previous reporting period.
           </p>
-          <div style={{ width: '100%', height: 350 }}>
+          <div style={{ width: '100%', height: 700 }}>
             <ResponsiveContainer>
-              <BarChart data={filteredCourses} margin={{ top: 20, right: 30, left: 0, bottom: 40 }}>
+              <BarChart data={filteredCourses} margin={{ top: 20, right: 30, left: 0, bottom: 250 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="name" tick={{fill: 'var(--text-muted)', fontSize: 11}} angle={-45} textAnchor="end" />
+                <XAxis dataKey="name" tick={{fill: 'var(--text-muted)', fontSize: 11}} angle={-75} textAnchor="end" />
                 <YAxis tick={{fill: 'var(--text-muted)'}} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-color)', borderRadius: 8 }} 
