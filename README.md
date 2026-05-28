@@ -19,13 +19,7 @@ Follow these steps to run the project locally on your machine.
    ```bash
    npm install
    ```
-3. **Setup Environment Variables**:
-   Create a `.env` file in the root directory and add your Supabase credentials:
-   ```env
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
-
+   
 ### Running the Project
 
 To start the development server with Hot Module Replacement (HMR):
